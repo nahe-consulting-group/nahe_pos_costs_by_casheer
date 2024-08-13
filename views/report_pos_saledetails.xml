@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="report_saledetails_inherit" inherit_id="point_of_sale.report_saledetails">
+<!-- Ocultar la sección de impuestos -->
+    <xpath expr="//h3[3]" position="replace"/>
+    <xpath expr="(//table[@class='table table-sm'])[3]" position="replace"/>
+
+    <!-- Agregar la nueva tabla para los costos por cajero -->
+        <xpath expr="//div[@class='page']" position="inside">
+    
+            <h3>Detalle por Masajistas</h3>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Servicio</th>
+                        <th>Masajista</th>
+                        <th>Cantidad</th>
+                        <th>Total Comisiones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="products_grouped_by_cashier" t-as="line">
+                        <td><t t-esc="line['product_name']"/></td>
+                        <td><t t-esc="line['cashier']"/></td>
+                        <td><t t-esc="line['quantity']"/></td>
+                        <td><t t-esc="line['total_cost']" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <br/>
+            <h3>Totales por Masajista</h3>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Masajista</th>
+                        <th>Comisiones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="cashier_costs" t-as="cashier">
+                        <td><t t-esc="cashier['name']"/></td>
+                        <td><t t-esc="cashier['total_cost']" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                    </tr>
+                </tbody>
+            </table>
+        </xpath>
+    </template>
+</odoo>
