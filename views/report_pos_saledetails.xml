@@ -49,8 +49,8 @@
                 <thead>
                     <tr>
                         <th>Masajista</th>
-                        <th>Monto Ingresos en Efectivo</th>
-                        <th>Efectivo Retirado</th>
+                        <th>Comisiones totales</th>
+                        <th>Retiros en Efectivo</th>
                         <th>Saldo Restante</th>
                     </tr>
                 </thead>
