@@ -1,0 +1,58 @@
+<odoo>
+    <!-- Vista tree editable para cashier.commission -->
+    <record id="view_cashier_commission_tree" model="ir.ui.view">
+        <field name="name">cashier.commission.tree</field>
+        <field name="model">cashier.commission</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="employee_id"/>
+                <field name="commission_amount" readonly="1"/>
+                <field name="cash_taken"/>
+                <field name="pos_session_id" readonly="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Acción para abrir la vista lista -->
+    <record id="action_cashier_commission" model="ir.actions.act_window">
+        <field name="name">Cashier Commissions</field>
+        <field name="res_model">cashier.commission</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_cashier_commission_tree"/>
+        <field name="domain">[('pos_session_id', '=', active_id)]</field>
+        <field name="context">{'default_pos_session_id': active_id}</field>
+    </record>
+    
+    <!-- Vista form de pos.session modificada -->
+    <record id="view_pos_session_form_inherit_commission_button" model="ir.ui.view">
+        <field name="name">pos.session.form.inherit.commission.button</field>
+        <field name="model">pos.session</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_session_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <button name="%(action_cashier_commission)d" type="action" string="Editar Retiros" class="oe_stat_button" icon="fa-money"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vista form de pos.session modificada -->
+    <record id="view_pos_session_form_inherit_commissions" model="ir.ui.view">
+        <field name="name">pos.session.form.inherit.commissions</field>
+        <field name="model">pos.session</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_session_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Cashier Commissions">
+                    <field name="cashier_commission_ids">
+                        <tree editable="bottom" create="true">
+                            <field name="employee_id"/>
+                            <field name="commission_amount" readonly="1"/>
+                            <field name="cash_taken"/>
+                            <field name="pos_session_id" readonly="1"/>
+                        </tree>
+                    </field>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -44,6 +44,31 @@
                     </tr>
                 </tbody>
             </table>
+            <h3>Comisiones y Masajista</h3>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Masajista</th>
+                        <th>Monto Ingresos en Efectivo</th>
+                        <th>Efectivo Retirado</th>
+                        <th>Saldo Restante</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="cashier_commissions" t-as="commission">
+                        <td><t t-esc="commission.employee_id.name"/></td>
+                        <td><t t-esc="commission.commission_amount" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                        <td><t t-esc="commission.cash_taken" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                        <td><t t-esc="commission.remaining_cash" t-options="{'widget': 'float', 'precision': currency_precision}"/></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <br/>
+            <h3>Resumen Efectivo Caja</h3>
+            <p><t t-esc="total_cash_payments"/> - Monto Total Ingresos en Efectivo</p>
+            <p><t t-esc="total_cash_taken"/> - Total Efectivo Retirado</p>
+            <p><strong><t t-esc="remaining_cash"/> - Efectivo Restante</strong></p>
         </xpath>
     </template>
 </odoo>

@@ -58,9 +58,10 @@ class CustomReportSaleDetails(models.AbstractModel):
     @api.model
     def _get_report_values(self, docids, data=None):
         _logger.info(f"Running _get_report_values with data: {data}")
+        _logger.info(f"Running _get_report_values with docids: {docids}")
         data = super(CustomReportSaleDetails, self)._get_report_values(docids, data)
         _logger.info(
-            f"Data for report including products_grouped_by_cashier: {data['products_grouped_by_cashier']}"
+            f"Data for report including products_grouped_by_cashier: {data.get('products_grouped_by_cashier', [])}"
         )
 
         # Asegúrate de que las fechas y configuraciones están pasadas correctamente.
@@ -68,6 +69,17 @@ class CustomReportSaleDetails(models.AbstractModel):
         date_stop = data.get("date_stop")
         config_ids = data.get("config_ids")
 
+        # Buscar la sesión de POS basada en start_at, stop_at y config_id
+        pos_session = self.env["pos.session"].search(
+            [
+                ("config_id", "in", config_ids),
+                ("start_at", ">=", date_start),
+                ("stop_at", "<=", date_stop),
+            ],
+            limit=1,
+        )
+
+        pos_session_id = pos_session.id if pos_session else None
         # Configura el dominio basado en fechas y configuraciones.
         domain = [("state", "in", ["paid", "invoiced", "done"])]
         if date_start and date_stop:
@@ -95,7 +107,33 @@ class CustomReportSaleDetails(models.AbstractModel):
         for cashier, total_cost in cashier_totals.items():
             cashier_costs.append({"name": cashier, "total_cost": total_cost})
 
-        data.update({"cashier_costs": cashier_costs})
+        # Sum of cash payments
+        total_cash_payments = sum(
+            payment["total"]
+            for payment in data["payments"]
+            if payment["name"] == "Efectivo"
+        )
 
-        _logger.info(f"Data after adding cashier_costs: {data}")
+        # Filtrar las comisiones por la sesión de POS específica.
+        cashier_commissions = self.env["cashier.commission"].search(
+            [("pos_session_id", "=", pos_session_id)]
+        )
+
+        total_cash_taken = sum(comm.cash_taken for comm in cashier_commissions)
+
+        # Calculate remaining cash
+        remaining_cash = total_cash_payments - total_cash_taken
+
+        # Update the data dictionary with the new information
+        data.update(
+            {
+                "cashier_costs": cashier_costs,
+                "total_cash_payments": total_cash_payments,
+                "total_cash_taken": total_cash_taken,
+                "remaining_cash": remaining_cash,
+                "cashier_commissions": cashier_commissions,
+            }
+        )
+
+        _logger.info(f"Data after adding cashier_costs and commissions: {data}")
         return data
